@@ -6,14 +6,16 @@ import styles from './styles';
 import { MenusType } from '../types';
 
 
-const DropMenu = ({ anchorEl = null, open = false, menus = [], placement }) => {
-
+const DropMenu = ({ anchorEl = null, open = false, menus = [], placement, ...restProps }) => {
+    if (menus.length === 0) {
+        return null
+    }
     return (
         <Popper open={open} anchorEl={anchorEl} placement={placement}>
             <Paper>
                 <MenuList>
                     {
-                        menus.map(item => <SubMenuItem key={item.id} item={item} />)
+                        menus.map(item => <SubMenuItem key={item.id} item={item} {...restProps} />)
                     }
                 </MenuList>
             </Paper>

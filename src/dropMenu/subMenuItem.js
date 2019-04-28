@@ -1,5 +1,6 @@
 import React from 'react';
-import { MenuItem, ListItemText, ListItemIcon, Popper } from '@material-ui/core';
+import PropsTypes from 'prop-types';
+import { MenuItem, ListItemText, MenuList, ListItemIcon } from '@material-ui/core';
 import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import DropMenu from '../dropMenu';
 
@@ -9,10 +10,19 @@ class SubItem extends React.Component {
     state = {
         open: false,
         anchorEl: null,
-        selectedItem: null
+        selectedItem: null,
+        menuListProps: {
+            ...MenuList.propTypes
+        },
+        MenuItemProps: {
+            ...MenuItem.propTypes
+        },
+        onClick: PropsTypes.func
     };
 
-    handleMenuClick = index => { };
+    static defaultProps = {
+        onClick: () => { }
+    }
 
     handleMenuOpen = item => event => {
         const { currentTarget } = event;
@@ -32,32 +42,32 @@ class SubItem extends React.Component {
         });
     };
 
-    handleMenuSelect = (index, event) => {
-        this.setState({
-            open: false,
-            anchorEl: null,
-            activeIndex: index
-        });
+    handleItemClick = item => event => {
+        this.props.onClick(item, event)
     };
+
+    wrapper = React.createRef();
     render() {
-        const { item } = this.props
+        const { item, MenuItemProps } = this.props
         const { anchorEl, open } = this.state
         return (
-            <React.Fragment>
-                <MenuItem onMouseEnter={this.handleMenuOpen(item)}>
+            <div onMouseLeave={this.handleMenuClose}>
+                <MenuItem
+                    {...MenuItemProps}
+                    onMouseEnter={this.handleMenuOpen(item)}
+                    onClick={this.handleItemClick(item)}
+                >
                     <ListItemText primary={item.name} />
                     {item.subItems.length > 0 && <ListItemIcon ><ArrowRightIcon /></ListItemIcon>}
                 </MenuItem>
-                {
-                    item.subItems.length > 0 && (
-                        <DropMenu
-                            menus={item.subItems}
-                            anchorEl={anchorEl}
-                            open={open}
-                            placement="right-start" />
-                    )
-                }
-            </React.Fragment>
+                <DropMenu
+                    menus={item.subItems}
+                    anchorEl={anchorEl}
+                    open={open}
+                    placement="right-start"
+                    {...this.props}
+                />
+            </div>
         )
 
     }

@@ -13,6 +13,6 @@ export default class App extends React.Component {
 
   render() {
     const { menus } = this.state
-    return <Menu menus={menus} />
+    return <Menu menus={menus} onClick={e => { console.log(e) }} />
   }
 }

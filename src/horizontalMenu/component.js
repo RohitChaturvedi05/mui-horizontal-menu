@@ -1,8 +1,6 @@
 import * as React from 'react';
 import PropsTypes from 'prop-types';
-import {
-    AppBar, Paper, Popper, Tabs, Tab, withStyles
-} from '@material-ui/core';
+import { AppBar, Paper, MenuList, MenuItem, Tabs, Tab, withStyles } from '@material-ui/core';
 import { MenusType } from '../types';
 import DropMenu from '../dropMenu';
 import styles from './styles'
@@ -11,7 +9,18 @@ class AppBarTop extends React.Component {
 
     static propsTypes = {
         classes: PropsTypes.shape({}),
-        menus: MenusType.isRequired
+        menus: MenusType.isRequired,
+        tabsProps: Tabs.propTypes,
+        menuListProps: {
+            ...MenuList.propTypes
+        },
+        MenuItemProps: {
+            ...MenuItem.propTypes
+        },
+        onClick: PropsTypes.func
+    }
+    static defaultProps = {
+        onClick: () => { }
     }
 
     state = {
@@ -22,8 +31,6 @@ class AppBarTop extends React.Component {
         selectedItem: null
     };
 
-    handleMenuClick = index => { };
-
     handleMenuOpen = (item, index) => event => {
         const { currentTarget } = event;
         this.setState({
@@ -32,6 +39,10 @@ class AppBarTop extends React.Component {
             value: index,
             selectedItem: item
         });
+    };
+
+    handleItemClick = item => event => {
+        this.props.onClick(item, event)
     };
 
     handleMenuClose = () => {
@@ -52,13 +63,13 @@ class AppBarTop extends React.Component {
     };
 
     render() {
-        const { classes, menus } = this.props;
+        const { classes, menus, tabsProps, onClick, ...restProps } = this.props;
         const { anchorEl, open, selectedItem } = this.state;
 
         return (
             <div
                 className={classes.root}
-                onMouseLeave={this.handleMenuClose.bind(this)}
+                onMouseLeave={this.handleMenuClose}
             >
                 <AppBar position='static'>
                     <Paper className={classes.grow}>
@@ -74,21 +85,20 @@ class AppBarTop extends React.Component {
                                         key={item.id}
                                         data-key={index}
                                         label={item.name}
-                                        onClick={this.handleMenuOpen(item, index)}
-                                        aria-owns={open ? 'menu-list-grow' : undefined}
-                                        aria-haspopup={'true'}
+                                        onMouseEnter={this.handleMenuOpen(item, index)}
+                                        onClick={this.handleItemClick(item, index)}
                                     />
                                 ))
                             }
                         </Tabs>
-                        {
-                            selectedItem && <DropMenu
-                                open={open}
-                                anchorEl={anchorEl}
-                                menus={selectedItem.subItems}
-                                placement="bottom"
-                            />
-                        }
+                        <DropMenu
+                            open={open}
+                            anchorEl={anchorEl}
+                            menus={selectedItem ? selectedItem.subItems : []}
+                            placement="bottom"
+                            onClick={onClick}
+                            {...restProps}
+                        />
                     </Paper>
                 </AppBar>
             </div>
